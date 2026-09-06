@@ -1,0 +1,3026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SkillMint — Dashboard</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <style>
+    /* ============================================================
+       CSS VARIABLES & RESET
+    ============================================================ */
+    :root {
+      --bg-base:       #080c14;
+      --bg-surface:    #0e1420;
+      --bg-card:       #121929;
+      --bg-card-hover: #172035;
+      --border:        rgba(255,255,255,0.07);
+      --border-accent: rgba(251,191,36,0.35);
+
+      --gold:          #fbbf24;
+      --gold-light:    #fde68a;
+      --gold-dim:      rgba(251,191,36,0.15);
+      --teal:          #2dd4bf;
+      --teal-dim:      rgba(45,212,191,0.12);
+      --rose:          #fb7185;
+      --rose-dim:      rgba(251,113,133,0.12);
+      --indigo:        #818cf8;
+      --indigo-dim:    rgba(129,140,248,0.12);
+
+      --text-primary:  #f0f4ff;
+      --text-secondary:#8b9ab5;
+      --text-muted:    #4a5568;
+
+      --sidebar-w:     260px;
+      --topbar-h:      68px;
+      --radius:        14px;
+      --radius-sm:     8px;
+      --transition:    0.22s cubic-bezier(0.4,0,0.2,1);
+
+      --font-display:  'Syne', sans-serif;
+      --font-body:     'DM Sans', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg-base);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 99px; }
+
+    /* ============================================================
+       LAYOUT SHELL
+    ============================================================ */
+    .app-shell {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ============================================================
+       SIDEBAR
+    ============================================================ */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--bg-surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0;
+      height: 100vh;
+      z-index: 100;
+      transition: transform var(--transition);
+      overflow: hidden;
+    }
+
+    /* Decorative corner glow */
+    .sidebar::before {
+      content: '';
+      position: absolute;
+      top: -60px; left: -60px;
+      width: 200px; height: 200px;
+      background: radial-gradient(circle, rgba(251,191,36,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 24px 22px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--gold), #f59e0b);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      box-shadow: 0 0 20px rgba(251,191,36,0.4);
+      flex-shrink: 0;
+    }
+
+    .logo-text {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(90deg, var(--gold-light), var(--gold));
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 16px 12px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .nav-section-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 10px 10px 6px;
+      margin-top: 8px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all var(--transition);
+      color: var(--text-secondary);
+      font-size: 14px;
+      font-weight: 400;
+      position: relative;
+      border: 1px solid transparent;
+      user-select: none;
+    }
+
+    .nav-item:hover {
+      background: rgba(255,255,255,0.04);
+      color: var(--text-primary);
+    }
+
+    .nav-item.active {
+      background: var(--gold-dim);
+      color: var(--gold);
+      border-color: var(--border-accent);
+      font-weight: 500;
+    }
+
+    .nav-item.active .nav-icon { color: var(--gold); }
+
+    .nav-item.logout-item {
+      color: var(--rose);
+      margin-top: 4px;
+    }
+    .nav-item.logout-item:hover {
+      background: var(--rose-dim);
+      color: var(--rose);
+    }
+
+    .nav-icon {
+      width: 18px;
+      text-align: center;
+      font-size: 15px;
+      flex-shrink: 0;
+    }
+
+    .nav-badge {
+      margin-left: auto;
+      background: var(--gold);
+      color: #000;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 99px;
+    }
+
+    /* Sidebar coin widget */
+    .sidebar-coin-widget {
+      margin: 0 12px 16px;
+      background: linear-gradient(135deg, rgba(251,191,36,0.12), rgba(251,191,36,0.04));
+      border: 1px solid var(--border-accent);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+    }
+
+    .scw-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 4px;
+    }
+
+    .scw-balance {
+      font-family: var(--font-display);
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--gold);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .scw-balance .coin-symbol { font-size: 18px; }
+
+    /* ============================================================
+       TOP NAVBAR
+    ============================================================ */
+    .topbar {
+      position: fixed;
+      top: 0;
+      left: var(--sidebar-w);
+      right: 0;
+      height: var(--topbar-h);
+      background: rgba(8,12,20,0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      z-index: 90;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .hamburger {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 20px;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    .topbar-breadcrumb {
+      font-family: var(--font-display);
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .topbar-breadcrumb span {
+      color: var(--text-muted);
+      font-weight: 400;
+      font-family: var(--font-body);
+      font-size: 13px;
+      margin-left: 8px;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .topbar-search {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px 14px;
+      transition: all var(--transition);
+    }
+
+    .topbar-search:focus-within {
+      border-color: rgba(251,191,36,0.4);
+      box-shadow: 0 0 0 3px rgba(251,191,36,0.08);
+    }
+
+    .topbar-search input {
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 13px;
+      width: 180px;
+    }
+
+    .topbar-search input::placeholder { color: var(--text-muted); }
+
+    .topbar-search i { color: var(--text-muted); font-size: 12px; }
+
+    .icon-btn {
+      width: 38px; height: 38px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      color: var(--text-secondary);
+      font-size: 15px;
+      transition: all var(--transition);
+      position: relative;
+    }
+
+    .icon-btn:hover {
+      background: var(--bg-card-hover);
+      color: var(--text-primary);
+    }
+
+    .notif-dot {
+      position: absolute;
+      top: 7px; right: 8px;
+      width: 7px; height: 7px;
+      background: var(--gold);
+      border-radius: 50%;
+      border: 1.5px solid var(--bg-base);
+    }
+
+    .user-chip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 6px 12px 6px 6px;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+
+    .user-chip:hover { background: var(--bg-card-hover); }
+
+    .user-avatar {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold), #f59e0b);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display);
+      font-size: 12px;
+      font-weight: 700;
+      color: #000;
+    }
+
+    .user-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    /* ============================================================
+       MAIN CONTENT
+    ============================================================ */
+    .main-content {
+      margin-left: var(--sidebar-w);
+      margin-top: var(--topbar-h);
+      padding: 32px 28px;
+      min-height: calc(100vh - var(--topbar-h));
+      flex: 1;
+    }
+
+    /* Sections */
+    .section {
+      display: none;
+      animation: fadeUp 0.35s ease both;
+    }
+
+    .section.active { display: block; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ============================================================
+       REUSABLE COMPONENTS
+    ============================================================ */
+
+    /* Page Header */
+    .page-header {
+      margin-bottom: 28px;
+    }
+
+    .page-title {
+      font-family: var(--font-display);
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -0.5px;
+    }
+
+    .page-subtitle {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    /* Card */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 22px;
+    }
+
+    .card-title {
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 16px;
+    }
+
+    /* Grid */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+
+    /* Stat Cards */
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: all var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: var(--radius);
+      opacity: 0;
+      transition: opacity var(--transition);
+    }
+
+    .stat-card:hover { transform: translateY(-2px); }
+    .stat-card:hover::after { opacity: 1; }
+
+    .stat-card.gold  { border-color: rgba(251,191,36,0.25); }
+    .stat-card.teal  { border-color: rgba(45,212,191,0.25); }
+    .stat-card.indigo{ border-color: rgba(129,140,248,0.25); }
+    .stat-card.rose  { border-color: rgba(251,113,133,0.25); }
+
+    .stat-card.gold::after  { background: linear-gradient(135deg, rgba(251,191,36,0.04), transparent); }
+    .stat-card.teal::after  { background: linear-gradient(135deg, rgba(45,212,191,0.04), transparent); }
+    .stat-card.indigo::after{ background: linear-gradient(135deg, rgba(129,140,248,0.04), transparent); }
+    .stat-card.rose::after  { background: linear-gradient(135deg, rgba(251,113,133,0.04), transparent); }
+
+    .stat-icon {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px;
+      flex-shrink: 0;
+    }
+
+    .stat-card.gold  .stat-icon { background: var(--gold-dim);   color: var(--gold); }
+    .stat-card.teal  .stat-icon { background: var(--teal-dim);   color: var(--teal); }
+    .stat-card.indigo.stat-icon { background: var(--indigo-dim); color: var(--indigo); }
+    .stat-card.rose  .stat-icon { background: var(--rose-dim);   color: var(--rose); }
+
+    .stat-card.indigo .stat-icon { background: var(--indigo-dim); color: var(--indigo); }
+    .stat-card.rose   .stat-icon { background: var(--rose-dim);   color: var(--rose); }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+
+    .stat-value {
+      font-family: var(--font-display);
+      font-size: 32px;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .stat-card.gold   .stat-value { color: var(--gold); }
+    .stat-card.teal   .stat-value { color: var(--teal); }
+    .stat-card.indigo .stat-value { color: var(--indigo); }
+    .stat-card.rose   .stat-value { color: var(--rose); }
+
+    .stat-change {
+      font-size: 12px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .stat-change.up   { color: var(--teal); }
+    .stat-change.down { color: var(--rose); }
+
+    /* Button */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 18px;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition);
+      border: 1px solid transparent;
+    }
+
+    .btn-primary {
+      background: var(--gold);
+      color: #000;
+      font-weight: 600;
+    }
+    .btn-primary:hover {
+      background: var(--gold-light);
+      box-shadow: 0 0 20px rgba(251,191,36,0.3);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border-color: var(--border);
+      color: var(--text-secondary);
+    }
+    .btn-outline:hover {
+      background: rgba(255,255,255,0.04);
+      color: var(--text-primary);
+      border-color: rgba(255,255,255,0.15);
+    }
+
+    .btn-danger {
+      background: var(--rose-dim);
+      border-color: rgba(251,113,133,0.3);
+      color: var(--rose);
+    }
+    .btn-danger:hover { background: rgba(251,113,133,0.2); }
+
+    .btn-success {
+      background: var(--teal-dim);
+      border-color: rgba(45,212,191,0.3);
+      color: var(--teal);
+    }
+    .btn-success:hover { background: rgba(45,212,191,0.2); }
+
+    .btn-sm { padding: 6px 12px; font-size: 12px; }
+
+    /* Input */
+    .form-group { margin-bottom: 16px; }
+    .form-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      background: var(--bg-base);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 14px;
+      outline: none;
+      transition: all var(--transition);
+    }
+
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: rgba(251,191,36,0.5);
+      box-shadow: 0 0 0 3px rgba(251,191,36,0.08);
+    }
+
+    .form-input::placeholder, .form-textarea::placeholder { color: var(--text-muted); }
+    .form-select { appearance: none; cursor: pointer; }
+    .form-textarea { resize: vertical; min-height: 90px; }
+
+    /* Tag / Pill */
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .tag-gold   { background: var(--gold-dim);   color: var(--gold);   border: 1px solid rgba(251,191,36,0.25); }
+    .tag-teal   { background: var(--teal-dim);   color: var(--teal);   border: 1px solid rgba(45,212,191,0.25); }
+    .tag-indigo { background: var(--indigo-dim); color: var(--indigo); border: 1px solid rgba(129,140,248,0.25); }
+    .tag-rose   { background: var(--rose-dim);   color: var(--rose);   border: 1px solid rgba(251,113,133,0.25); }
+    .tag-muted  { background: rgba(255,255,255,0.05); color: var(--text-secondary); border: 1px solid var(--border); }
+
+    /* Divider */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 20px 0;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--text-muted);
+    }
+
+    .empty-state i { font-size: 36px; margin-bottom: 12px; opacity: 0.4; }
+    .empty-state p { font-size: 14px; }
+
+    /* ============================================================
+       DASHBOARD SECTION
+    ============================================================ */
+    .welcome-banner {
+      background: linear-gradient(135deg, rgba(251,191,36,0.08) 0%, rgba(45,212,191,0.04) 100%);
+      border: 1px solid var(--border-accent);
+      border-radius: var(--radius);
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .welcome-banner::before {
+      content: '🪙';
+      position: absolute;
+      right: 20px;
+      font-size: 80px;
+      opacity: 0.07;
+      line-height: 1;
+    }
+
+    .welcome-greeting {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .welcome-name {
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 800;
+      background: linear-gradient(90deg, var(--text-primary), var(--gold));
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .welcome-sub {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 6px;
+    }
+
+    .welcome-stats {
+      display: flex;
+      gap: 28px;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .ws-item .ws-value {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--gold);
+    }
+
+    .ws-item .ws-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* Activity feed */
+    .activity-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .activity-item:last-child { border-bottom: none; }
+
+    .activity-dot {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .activity-text { flex: 1; font-size: 13px; color: var(--text-secondary); }
+    .activity-text strong { color: var(--text-primary); }
+    .activity-time { font-size: 11px; color: var(--text-muted); }
+    .activity-coin { font-size: 13px; font-weight: 600; }
+    .activity-coin.plus  { color: var(--teal); }
+    .activity-coin.minus { color: var(--rose); }
+
+    /* Quick actions */
+    .quick-action-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .qa-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+
+    .qa-btn:hover {
+      background: var(--bg-card-hover);
+      border-color: rgba(255,255,255,0.12);
+      transform: translateY(-2px);
+    }
+
+    .qa-btn i {
+      font-size: 20px;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .qa-btn span { font-size: 12px; color: var(--text-secondary); }
+
+    /* ============================================================
+       WALLET SECTION
+    ============================================================ */
+    .wallet-hero {
+      background: linear-gradient(135deg, #1a1200, #0e1420);
+      border: 1px solid var(--border-accent);
+      border-radius: var(--radius);
+      padding: 32px;
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .wallet-hero::before {
+      content: '';
+      position: absolute;
+      top: -40px; right: -40px;
+      width: 200px; height: 200px;
+      background: radial-gradient(circle, rgba(251,191,36,0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .wallet-coin-icon {
+      width: 80px; height: 80px;
+      background: linear-gradient(135deg, var(--gold), #f59e0b);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 36px;
+      box-shadow: 0 0 40px rgba(251,191,36,0.4);
+      flex-shrink: 0;
+      animation: coinPulse 3s ease-in-out infinite;
+    }
+
+    @keyframes coinPulse {
+      0%, 100% { box-shadow: 0 0 30px rgba(251,191,36,0.3); }
+      50%       { box-shadow: 0 0 60px rgba(251,191,36,0.5); }
+    }
+
+    .wallet-balance-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .wallet-balance-value {
+      font-family: var(--font-display);
+      font-size: 52px;
+      font-weight: 800;
+      color: var(--gold);
+      line-height: 1;
+    }
+
+    .wallet-balance-value span {
+      font-size: 20px;
+      color: var(--gold-light);
+      margin-left: 6px;
+    }
+
+    .wallet-balance-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    /* Transaction list */
+    .txn-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .txn-item:last-child { border-bottom: none; }
+
+    .txn-icon {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px;
+      flex-shrink: 0;
+    }
+
+    .txn-icon.earn  { background: var(--teal-dim);   color: var(--teal); }
+    .txn-icon.spend { background: var(--rose-dim);   color: var(--rose); }
+    .txn-icon.bonus { background: var(--gold-dim);   color: var(--gold); }
+
+    .txn-info { flex: 1; }
+    .txn-desc { font-size: 14px; color: var(--text-primary); }
+    .txn-date { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+    .txn-amount { font-family: var(--font-display); font-size: 16px; font-weight: 700; }
+    .txn-amount.earn  { color: var(--teal); }
+    .txn-amount.spend { color: var(--rose); }
+    .txn-amount.bonus { color: var(--gold); }
+
+    /* ============================================================
+       PROFILE SECTION
+    ============================================================ */
+    .profile-header-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      margin-bottom: 20px;
+    }
+
+    .profile-avatar {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold), #f59e0b);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 800;
+      color: #000;
+      flex-shrink: 0;
+      border: 3px solid rgba(251,191,36,0.4);
+    }
+
+    .profile-info h2 {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 800;
+    }
+
+    .profile-info .profile-email {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 3px;
+    }
+
+    .profile-info .profile-meta {
+      display: flex;
+      gap: 16px;
+      margin-top: 10px;
+    }
+
+    .profile-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* ============================================================
+       SKILLS SECTION
+    ============================================================ */
+    .skill-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 18px;
+      background: var(--bg-base);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      margin-bottom: 8px;
+      transition: all var(--transition);
+    }
+
+    .skill-item:hover {
+      background: var(--bg-card);
+      border-color: rgba(255,255,255,0.1);
+    }
+
+    .skill-type-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 99px;
+    }
+
+    .skill-type-badge.teach { background: var(--teal-dim); color: var(--teal); }
+    .skill-type-badge.learn { background: var(--indigo-dim); color: var(--indigo); }
+
+    .skill-name { font-size: 14px; flex: 1; }
+    .skill-level { font-size: 12px; color: var(--text-muted); }
+
+    /* ============================================================
+       EXPLORE SECTION
+    ============================================================ */
+    .explore-search-bar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .explore-search-bar .form-input { flex: 1; }
+
+    .user-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      transition: all var(--transition);
+      cursor: default;
+    }
+
+    .user-card:hover {
+      border-color: rgba(251,191,36,0.25);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    }
+
+    .user-card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .user-card-avatar {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .user-card-name { font-weight: 600; font-size: 14px; }
+    .user-card-location { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+    .user-card-skills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-bottom: 14px;
+    }
+
+    .user-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+    }
+
+    .coin-cost {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--gold);
+    }
+
+    /* ============================================================
+       REQUESTS SECTION
+    ============================================================ */
+    .request-tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 20px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 4px;
+      width: fit-content;
+    }
+
+    .req-tab {
+      padding: 7px 18px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: all var(--transition);
+    }
+
+    .req-tab.active {
+      background: var(--gold-dim);
+      color: var(--gold);
+    }
+
+    .request-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .request-item-info { flex: 1; }
+    .request-item-name { font-size: 14px; font-weight: 500; }
+    .request-item-detail { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+
+    .status-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 99px;
+    }
+
+    .status-badge.pending  { background: var(--gold-dim);   color: var(--gold);   }
+    .status-badge.accepted { background: var(--teal-dim);   color: var(--teal);   }
+    .status-badge.rejected { background: var(--rose-dim);   color: var(--rose);   }
+
+    .request-actions { display: flex; gap: 8px; }
+
+    /* ============================================================
+       MESSAGES SECTION
+    ============================================================ */
+    .chat-layout {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 0;
+      height: 600px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .chat-list {
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-list-header {
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .chat-contact {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      cursor: pointer;
+      transition: all var(--transition);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .chat-contact:hover { background: rgba(255,255,255,0.03); }
+    .chat-contact.active { background: var(--gold-dim); }
+
+    .contact-avatar {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .contact-name { font-size: 13px; font-weight: 500; }
+    .contact-preview { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .contact-time { margin-left: auto; font-size: 10px; color: var(--text-muted); align-self: flex-start; padding-top: 2px; }
+
+    .unread-badge {
+      background: var(--gold);
+      color: #000;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 99px;
+      margin-left: auto;
+    }
+
+    /* Chat window */
+    .chat-window {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-window-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .chat-window-status { font-size: 11px; color: var(--teal); }
+
+    .chat-messages {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .msg {
+      display: flex;
+      gap: 8px;
+      max-width: 70%;
+    }
+
+    .msg.sent { margin-left: auto; flex-direction: row-reverse; }
+
+    .msg-bubble {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .msg.sent .msg-bubble {
+      background: var(--gold-dim);
+      border-color: rgba(251,191,36,0.25);
+      color: var(--gold-light);
+    }
+
+    .msg-time { font-size: 10px; color: var(--text-muted); align-self: flex-end; }
+
+    .chat-input-bar {
+      padding: 14px 16px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .chat-input-bar input {
+      flex: 1;
+      background: var(--bg-base);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 13px;
+      outline: none;
+    }
+
+    .chat-input-bar input:focus {
+      border-color: rgba(251,191,36,0.4);
+    }
+
+    .chat-send-btn {
+      width: 40px; height: 40px;
+      background: var(--gold);
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: #000;
+      font-size: 15px;
+      transition: all var(--transition);
+    }
+
+    .chat-send-btn:hover {
+      background: var(--gold-light);
+      box-shadow: 0 0 16px rgba(251,191,36,0.3);
+    }
+
+    /* ============================================================
+       OVERLAY (mobile sidebar)
+    ============================================================ */
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(4px);
+      z-index: 99;
+    }
+
+    /* ============================================================
+       MODAL
+    ============================================================ */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(8px);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+      animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .modal {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      width: 100%;
+      max-width: 480px;
+      animation: slideUp 0.25s ease;
+      position: relative;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .modal-title {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 20px;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 20px; right: 20px;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 18px;
+      cursor: pointer;
+      transition: color var(--transition);
+    }
+
+    .modal-close:hover { color: var(--text-primary); }
+
+    /* ============================================================
+       TOAST
+    ============================================================ */
+    #toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .toast {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      font-size: 13px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+      animation: toastIn 0.3s ease;
+      min-width: 220px;
+    }
+
+    .toast.success { border-color: rgba(45,212,191,0.4); }
+    .toast.error   { border-color: rgba(251,113,133,0.4); }
+    .toast.info    { border-color: var(--border-accent); }
+
+    .toast i { font-size: 15px; }
+    .toast.success i { color: var(--teal); }
+    .toast.error   i { color: var(--rose); }
+    .toast.info    i { color: var(--gold); }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateX(20px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    /* ============================================================
+       RESPONSIVE
+    ============================================================ */
+    @media (max-width: 1100px) {
+      .grid-4 { grid-template-columns: repeat(2, 1fr); }
+      .quick-action-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 900px) {
+      .sidebar {
+        transform: translateX(calc(-1 * var(--sidebar-w)));
+      }
+      .sidebar.open {
+        transform: translateX(0);
+        box-shadow: 8px 0 40px rgba(0,0,0,0.5);
+      }
+      .overlay.open { display: block; }
+      .topbar { left: 0; }
+      .main-content { margin-left: 0; }
+      .hamburger { display: flex; }
+      .topbar-search { display: none; }
+      .chat-layout { grid-template-columns: 1fr; }
+      .chat-list { display: none; }
+      .welcome-stats { display: none; }
+    }
+
+    @media (max-width: 600px) {
+      .main-content { padding: 20px 16px; }
+      .grid-2 { grid-template-columns: 1fr; }
+      .grid-3 { grid-template-columns: 1fr; }
+      .grid-4 { grid-template-columns: 1fr; }
+      .quick-action-grid { grid-template-columns: repeat(2, 1fr); }
+      .wallet-hero { flex-direction: column; text-align: center; }
+      .profile-header-card { flex-direction: column; text-align: center; }
+      .explore-search-bar { flex-direction: column; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ============================================================
+       OVERLAY (mobile)
+  ============================================================ -->
+  <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+  <!-- ============================================================
+       SIDEBAR
+  ============================================================ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">🪙</div>
+      <div class="logo-text">SkillMint</div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <span class="nav-section-label">Main</span>
+
+      <div class="nav-item active" onclick="navigate('dashboard', this)">
+        <i class="fa-solid fa-grid-2 nav-icon"></i>
+        Dashboard
+      </div>
+      <div class="nav-item" onclick="navigate('profile', this)">
+        <i class="fa-solid fa-circle-user nav-icon"></i>
+        Profile
+      </div>
+      <div class="nav-item" onclick="navigate('skills', this)">
+        <i class="fa-solid fa-brain nav-icon"></i>
+        My Skills
+      </div>
+      <div class="nav-item" onclick="navigate('explore', this)">
+        <i class="fa-solid fa-compass nav-icon"></i>
+        Explore Skills
+      </div>
+
+      <span class="nav-section-label">Activity</span>
+
+      <div class="nav-item" onclick="navigate('requests', this)">
+        <i class="fa-solid fa-right-left nav-icon"></i>
+        Requests
+        <span class="nav-badge" id="nav-badge-requests" style="display:none;">0</span>
+      </div>
+      <div class="nav-item" onclick="navigate('messages', this)">
+        <i class="fa-solid fa-message nav-icon"></i>
+        Messages
+        <span class="nav-badge" id="nav-badge-messages" style="display:none;">0</span>
+      </div>
+
+      <span class="nav-section-label">Finance</span>
+
+      <div class="nav-item" onclick="navigate('wallet', this)">
+        <i class="fa-solid fa-wallet nav-icon"></i>
+        Wallet / Coins
+      </div>
+
+      <div class="divider" style="margin: 8px 0;"></div>
+
+      <div class="nav-item logout-item" onclick="handleLogout()">
+        <i class="fa-solid fa-right-from-bracket nav-icon"></i>
+        Logout
+      </div>
+    </nav>
+
+    <!-- Mini wallet widget -->
+    <div class="sidebar-coin-widget">
+      <div class="scw-label">Coin Balance</div>
+      <div class="scw-balance">
+        <span class="coin-symbol">🪙</span>
+        <span id="sidebar-balance">0</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============================================================
+       TOP NAVBAR
+  ============================================================ -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="hamburger" onclick="toggleSidebar()">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <div class="topbar-breadcrumb" id="topbar-title">
+        Dashboard
+        <span>Overview</span>
+      </div>
+    </div>
+
+    <div class="topbar-right">
+      <div class="topbar-search">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" placeholder="Search skills, users…" />
+      </div>
+
+      <div class="icon-btn" title="Notifications">
+        <i class="fa-solid fa-bell"></i>
+        <span class="notif-dot"></span>
+      </div>
+
+      <div class="user-chip" onclick="navigate('profile', document.querySelector('.nav-item:nth-child(3)'))">
+        <div class="user-avatar" id="topbar-avatar">U</div>
+        <div class="user-name" id="topbar-username">User</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============================================================
+       MAIN CONTENT
+  ============================================================ -->
+  <main class="main-content">
+
+    <!-- ==================== DASHBOARD ==================== -->
+    <section class="section active" id="sec-dashboard">
+      <div class="welcome-banner">
+        <div>
+          <div class="welcome-greeting">Good Afternoon👋</div>
+          <div class="welcome-name" id="welcome-name">User</div>
+          <div class="welcome-sub" id="welcome-sub">Loading your overview…</div>
+        </div>
+        <div class="welcome-stats">
+          <div class="ws-item">
+            <div class="ws-value" id="dash-balance">0</div>
+            <div class="ws-label">🪙 Coins</div>
+          </div>
+          <div class="ws-item">
+            <div class="ws-value" id="dash-sessions">0</div>
+            <div class="ws-label">Sessions</div>
+          </div>
+          <div class="ws-item">
+            <div class="ws-value" id="dash-earned">0</div>
+            <div class="ws-label">Earned 🪙</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stat cards -->
+      <div class="grid-4" style="margin-bottom:24px;">
+        <div class="stat-card gold">
+          <div class="stat-icon"><i class="fa-solid fa-coins"></i></div>
+          <div class="stat-label">Coin Balance</div>
+          <div class="stat-value" id="stat-coins">0</div>
+        </div>
+        <div class="stat-card teal">
+          <div class="stat-icon"><i class="fa-solid fa-chalkboard-user"></i></div>
+          <div class="stat-label">Skills Offered</div>
+          <div class="stat-value" id="stat-skills-teach">0</div>
+        </div>
+        <div class="stat-card indigo">
+          <div class="stat-icon"><i class="fa-solid fa-graduation-cap"></i></div>
+          <div class="stat-label">Skills Learned</div>
+          <div class="stat-value" id="stat-skills-learn">0</div>
+        </div>
+        <div class="stat-card rose">
+          <div class="stat-icon"><i class="fa-solid fa-handshake"></i></div>
+          <div class="stat-label">Active Requests</div>
+          <div class="stat-value" id="stat-active-requests">0</div>
+        </div>
+      </div>
+
+      <!-- Quick actions -->
+      <div class="quick-action-grid">
+        <div class="qa-btn" onclick="navigate('explore', document.querySelector('.nav-item:nth-child(5)'))">
+          <i class="fa-solid fa-compass" style="color:var(--gold)"></i>
+          <span>Explore Skills</span>
+        </div>
+        <div class="qa-btn" onclick="openAddSkillModal()">
+          <i class="fa-solid fa-plus" style="color:var(--teal)"></i>
+          <span>Add a Skill</span>
+        </div>
+        <div class="qa-btn" onclick="navigate('wallet', document.querySelector('.nav-item:nth-child(9)'))">
+          <i class="fa-solid fa-wallet" style="color:var(--indigo)"></i>
+          <span>View Wallet</span>
+        </div>
+        <div class="qa-btn" onclick="navigate('requests', document.querySelector('.nav-item:nth-child(7)'))">
+          <i class="fa-solid fa-right-left" style="color:var(--rose)"></i>
+          <span>View Requests</span>
+        </div>
+      </div>
+
+      <!-- Two-column: recent activity + top skills -->
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title"><i class="fa-solid fa-clock-rotate-left"></i> Recent Activity</div>
+          <div id="dashboard-activity-list"><p style="color:var(--text-secondary);font-size:14px;">No activity yet</p></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><i class="fa-solid fa-fire"></i> Your Top Skills</div>
+          <div id="dashboard-top-skills-list"><p style="color:var(--text-secondary);font-size:14px;">No skills added yet</p></div>
+          <div style="margin-top:12px;">
+            <button class="btn btn-outline" onclick="navigate('skills', document.querySelector('.nav-item:nth-child(4)'))">
+              <i class="fa-solid fa-brain"></i> Manage All Skills
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== PROFILE ==================== -->
+    <section class="section" id="sec-profile">
+      <div class="page-header">
+        <div class="page-title">My Profile</div>
+        <div class="page-subtitle">Manage your personal information and preferences</div>
+      </div>
+
+      <div class="profile-header-card">
+        <div class="profile-avatar" id="profile-avatar-display">U</div>
+        <div class="profile-info">
+          <h2 id="profile-name-display">User</h2>
+          <div class="profile-email" id="profile-email-display"><i class="fa-solid fa-envelope"></i></div>
+          <div class="profile-meta">
+            <div class="profile-meta-item" id="profile-location-display"><i class="fa-solid fa-location-dot"></i> —</div>
+            <div class="profile-meta-item"><i class="fa-solid fa-coins" style="color:var(--gold)"></i> <span style="color:var(--gold)" id="profile-coin-display">0 coins</span></div>
+          </div>
+        </div>
+        <div style="margin-left:auto;">
+          <button class="btn btn-primary" onclick="toggleEditProfile()">
+            <i class="fa-solid fa-pen"></i> Edit Profile
+          </button>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <!-- View -->
+        <div class="card" id="profile-view-card">
+          <div class="card-title"><i class="fa-solid fa-id-card"></i> About</div>
+          <div class="form-group">
+            <div class="form-label">Full Name</div>
+            <div style="font-size:14px;color:var(--text-primary)" id="pv-name">—</div>
+          </div>
+          <div class="form-group">
+            <div class="form-label">Email</div>
+            <div style="font-size:14px;color:var(--text-primary)" id="pv-email">—</div>
+          </div>
+          <div class="form-group">
+            <div class="form-label">Location</div>
+            <div style="font-size:14px;color:var(--text-primary)" id="pv-location">—</div>
+          </div>
+          <div class="form-group">
+            <div class="form-label">Bio</div>
+            <div style="font-size:14px;color:var(--text-secondary);line-height:1.6" id="pv-bio">—</div>
+          </div>
+        </div>
+
+        <!-- Edit -->
+        <div class="card" id="profile-edit-card" style="display:none;">
+          <div class="card-title"><i class="fa-solid fa-pen"></i> Edit Details</div>
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <input class="form-input" id="edit-name" value="" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input class="form-input" id="edit-email" value="" type="email" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Location</label>
+            <input class="form-input" id="edit-location" value="" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Bio</label>
+            <textarea class="form-textarea" id="edit-bio"></textarea>
+          </div>
+          <div style="display:flex;gap:10px;">
+            <button class="btn btn-primary" onclick="saveProfile()"><i class="fa-solid fa-check"></i> Save Changes</button>
+            <button class="btn btn-outline" onclick="toggleEditProfile()">Cancel</button>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="card">
+          <div class="card-title"><i class="fa-solid fa-chart-bar"></i> Stats</div>
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:13px;color:var(--text-secondary)">Total Sessions</span>
+              <span style="font-family:var(--font-display);font-size:20px;font-weight:800;color:var(--indigo)" id="profile-stat-sessions">0</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:13px;color:var(--text-secondary)">Coins Earned</span>
+              <span style="font-family:var(--font-display);font-size:20px;font-weight:800;color:var(--teal)" id="profile-stat-earned">0 🪙</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:13px;color:var(--text-secondary)">Coins Spent</span>
+              <span style="font-family:var(--font-display);font-size:20px;font-weight:800;color:var(--rose)" id="profile-stat-spent">0 🪙</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== MY SKILLS ==================== -->
+    <section class="section" id="sec-skills">
+      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div class="page-title">My Skills</div>
+          <div class="page-subtitle">Manage skills you teach or want to learn</div>
+        </div>
+        <button class="btn btn-primary" onclick="openAddSkillModal()">
+          <i class="fa-solid fa-plus"></i> Add Skill
+        </button>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title" style="color:var(--teal)"><i class="fa-solid fa-chalkboard-user"></i> Skills I Teach</div>
+          <div id="teach-skills-list"><p style="color:var(--text-secondary);font-size:14px;">No skills added yet</p></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title" style="color:var(--indigo)"><i class="fa-solid fa-graduation-cap"></i> Skills I Want to Learn</div>
+          <div id="learn-skills-list"><p style="color:var(--text-secondary);font-size:14px;">No skills added yet</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== EXPLORE ==================== -->
+    <section class="section" id="sec-explore">
+      <div class="page-header">
+        <div class="page-title">Explore Skills</div>
+        <div class="page-subtitle">Find users to exchange skills with</div>
+      </div>
+
+      <div class="explore-search-bar">
+        <input class="form-input" id="explore-search" placeholder="Search by skill (e.g. Python, Figma, Java…)" oninput="filterUsers()" />
+        <select class="form-select" style="width:180px;" id="explore-filter" onchange="filterUsers()">
+          <option value="">All skills</option>
+        </select>
+      </div>
+
+      <div class="grid-3" id="user-cards-container">
+        <p style="color:var(--text-secondary);font-size:14px;grid-column:1/-1;">No users to explore yet</p>
+      </div>
+    </section>
+
+    <!-- ==================== REQUESTS ==================== -->
+    <section class="section" id="sec-requests">
+      <div class="page-header">
+        <div class="page-title">Requests</div>
+        <div class="page-subtitle">Manage your skill exchange requests</div>
+      </div>
+
+      <div class="request-tabs" id="request-direction-tabs" style="margin-bottom:12px;">
+        <div class="req-tab active" id="req-tab-received" onclick="switchReqTab('received', this)">Received (0)</div>
+        <div class="req-tab" id="req-tab-sent" onclick="switchReqTab('sent', this)">Sent (0)</div>
+      </div>
+
+      <div class="request-tabs" id="request-status-tabs">
+        <div class="req-tab active" data-status="ALL" onclick="setRequestStatusFilter('ALL', this)">All</div>
+        <div class="req-tab" data-status="PENDING" onclick="setRequestStatusFilter('PENDING', this)">Pending</div>
+        <div class="req-tab" data-status="ACCEPTED" onclick="setRequestStatusFilter('ACCEPTED', this)">Accepted</div>
+        <div class="req-tab" data-status="REJECTED" onclick="setRequestStatusFilter('REJECTED', this)">Rejected</div>
+      </div>
+
+      <div id="req-received"><p style="color:var(--text-secondary);font-size:14px;">No requests yet</p></div>
+
+      <div id="req-sent" style="display:none;"><p style="color:var(--text-secondary);font-size:14px;">No requests yet</p></div>
+    </section>
+
+    <!-- ==================== MESSAGES ==================== -->
+    <section class="section" id="sec-messages">
+      <div class="page-header">
+        <div class="page-title">Messages</div>
+        <div class="page-subtitle">Chat with your skill exchange partners</div>
+      </div>
+
+      <div class="chat-layout">
+        <!-- Contact list -->
+        <div class="chat-list">
+          <div class="chat-list-header"><i class="fa-solid fa-message"></i> Conversations</div>
+          <div id="chat-contacts-list"><p style="color:var(--text-secondary);font-size:13px;padding:12px;">No messages yet</p></div>
+        </div>
+
+        <!-- Chat window -->
+        <div class="chat-window">
+          <div class="chat-window-header">
+            <div class="contact-avatar" id="chat-header-avatar" style="background:var(--indigo);color:#fff;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;">—</div>
+            <div>
+              <div style="font-weight:600;font-size:14px;" id="chat-header-name">Select a conversation</div>
+              <div class="chat-window-status" id="chat-header-status"></div>
+            </div>
+            <div style="margin-left:auto;display:flex;gap:8px;">
+              <button class="btn btn-sm btn-outline" id="btn-session-complete" style="display:none;" onclick="sessionComplete()">
+                Session Complete
+              </button>
+              <button class="btn btn-sm btn-primary" id="btn-session-confirm" style="display:none;" onclick="sessionConfirmCompletion()">
+                Confirm Completion
+              </button>
+              <button class="btn btn-sm btn-danger" id="btn-session-terminate" style="display:none;" onclick="sessionTerminate()">
+                Terminate
+              </button>
+            </div>
+          </div>
+
+          <div class="chat-messages" id="chat-messages">
+            <p style="color:var(--text-secondary);font-size:14px;padding:16px;">No messages yet</p>
+          </div>
+
+          <div class="chat-input-bar">
+            <input type="text" id="chat-input" placeholder="Type a message…" onkeydown="if(event.key==='Enter')sendMessage()" />
+            <button class="chat-send-btn" onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== WALLET ==================== -->
+    <section class="section" id="sec-wallet">
+      <div class="page-header">
+        <div class="page-title">Wallet & Coins</div>
+        <div class="page-subtitle">Track your SkillMint coin balance and transactions</div>
+      </div>
+
+      <div class="wallet-hero">
+        <div class="wallet-coin-icon">🪙</div>
+        <div>
+          <div class="wallet-balance-label">Current Balance</div>
+          <div class="wallet-balance-value" id="wallet-balance">0 <span>COINS</span></div>
+          <div class="wallet-balance-sub" id="wallet-balance-sub"></div>
+        </div>
+        <div style="margin-left:auto;display:flex;gap:28px;text-align:center;position:relative;z-index:1;">
+          <div>
+            <div style="font-family:var(--font-display);font-size:20px;font-weight:800;color:var(--teal)" id="wallet-total-earned">0</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">Total Earned</div>
+          </div>
+          <div>
+            <div style="font-family:var(--font-display);font-size:20px;font-weight:800;color:var(--rose)" id="wallet-total-spent">0</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">Total Spent</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><i class="fa-solid fa-receipt"></i> Transaction History</div>
+        <div id="wallet-txn-list"><p style="color:var(--text-secondary);font-size:14px;">No transactions yet</p></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============================================================
+       MODAL: Add Skill
+  ============================================================ -->
+  <div class="modal-backdrop" id="add-skill-modal">
+    <div class="modal">
+      <button class="modal-close" onclick="closeModal('add-skill-modal')"><i class="fa-solid fa-xmark"></i></button>
+      <div class="modal-title"><i class="fa-solid fa-plus" style="color:var(--gold)"></i> Add a Skill</div>
+      <div class="form-group">
+        <label class="form-label">Skill Name</label>
+        <input class="form-input" id="new-skill-name" placeholder="e.g. Python, Figma, Guitar…" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Type</label>
+        <select class="form-select" id="new-skill-type">
+          <option value="TEACH">Teach — I can teach this skill</option>
+          <option value="LEARN">Learn — I want to learn this skill</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Proficiency Level</label>
+        <select class="form-select" id="new-skill-level">
+          <option>Beginner</option>
+          <option>Intermediate</option>
+          <option>Expert</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:8px;">
+        <button class="btn btn-primary" onclick="addSkill()"><i class="fa-solid fa-plus"></i> Add Skill</button>
+        <button class="btn btn-outline" onclick="closeModal('add-skill-modal')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       MODAL: Send Request
+  ============================================================ -->
+  <div class="modal-backdrop" id="send-request-modal">
+    <div class="modal">
+      <button class="modal-close" onclick="closeModal('send-request-modal')"><i class="fa-solid fa-xmark"></i></button>
+      <div class="modal-title"><i class="fa-solid fa-paper-plane" style="color:var(--teal)"></i> Send Skill Request</div>
+      <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">
+        Request a session with <strong id="send-request-receiver-name">User</strong>
+      </p>
+      <div class="form-group">
+        <label class="form-label">Request Type</label>
+        <select class="form-select" id="send-request-type" onchange="onRequestTypeChange()">
+          <option value="SKILL_SWAP">Skill Swap (no coins)</option>
+          <option value="COIN_SESSION" selected>Coin Based Session</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Skill to learn (their teach skill)</label>
+        <select class="form-select" id="send-request-skill"></select>
+      </div>
+      <div class="form-group" id="send-request-coins-wrap">
+        <label class="form-label">Coins per session</label>
+        <input class="form-input" id="send-request-coins" type="number" min="1" value="10" />
+      </div>
+      <div style="display:flex;gap:10px;margin-top:8px;">
+        <button class="btn btn-primary" onclick="submitSendRequest()"><i class="fa-solid fa-paper-plane"></i> Send Request</button>
+        <button class="btn btn-outline" onclick="closeModal('send-request-modal')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       TOAST CONTAINER
+  ============================================================ -->
+  <div id="toast-container"></div>
+
+  <!-- ============================================================
+       JAVASCRIPT
+  ============================================================ -->
+<script>
+const API_BASE = "http://localhost:8080/api";
+const TOKEN_STORAGE_KEY = "skillmintToken";
+
+let currentUserId = null;
+let cachedSkills = [];
+let cachedUsers = [];
+let cachedReceivedRequests = [];
+let cachedSentRequests = [];
+let activeChatUserId = null;
+let activeSessionId = null;
+let pendingRequestTarget = null;
+let requestStatusFilter = "ALL";
+let currentReqTab = "received";
+
+const PAGE_CONFIG = {
+  dashboard: { sectionId: "sec-dashboard", title: "Dashboard", subtitle: "Overview" },
+  profile: { sectionId: "sec-profile", title: "My Profile", subtitle: "Manage your personal information and preferences" },
+  skills: { sectionId: "sec-skills", title: "My Skills", subtitle: "Manage skills you teach or want to learn" },
+  explore: { sectionId: "sec-explore", title: "Explore Skills", subtitle: "Find users to exchange skills with" },
+  requests: { sectionId: "sec-requests", title: "Requests", subtitle: "Manage your skill exchange requests" },
+  messages: { sectionId: "sec-messages", title: "Messages", subtitle: "Chat with your skill exchange partners" },
+  wallet: { sectionId: "sec-wallet", title: "Wallet & Coins", subtitle: "Track your SkillMint coin balance and transactions" }
+};
+
+/* ================= AUTH ================= */
+
+function getToken() {
+  return (localStorage.getItem(TOKEN_STORAGE_KEY) || "").trim();
+}
+
+function clearToken() {
+  localStorage.removeItem(TOKEN_STORAGE_KEY);
+}
+
+let isRedirecting = false;
+
+function redirectToLogin() {
+  if (isRedirecting) return;
+  isRedirecting = true;
+  window.location.href = "login.html";
+}
+
+function handleUnauthorized() {
+  clearToken();
+  redirectToLogin();
+}
+
+function handleLogout() {
+  clearToken();
+  window.location.href = "login.html";
+}
+
+/* ================= NAVIGATION ================= */
+
+function findNavItem(page) {
+  return Array.from(document.querySelectorAll(".sidebar-nav .nav-item")).find((el) => {
+    const onclick = el.getAttribute("onclick") || "";
+    return onclick.includes("'" + page + "'") || onclick.includes('"' + page + '"');
+  });
+}
+
+function navigate(page, navEl) {
+  const config = PAGE_CONFIG[page];
+  if (!config) return;
+
+  document.querySelectorAll(".section").forEach((s) => s.classList.remove("active"));
+  const section = document.getElementById(config.sectionId);
+  if (section) section.classList.add("active");
+
+  document.querySelectorAll(".sidebar-nav .nav-item").forEach((n) => n.classList.remove("active"));
+  const activeNav =
+    navEl && navEl.classList && navEl.classList.contains("nav-item") ? navEl : findNavItem(page);
+  if (activeNav) activeNav.classList.add("active");
+
+  const topbar = document.getElementById("topbar-title");
+  if (topbar) {
+    topbar.innerHTML = config.title + "<span>" + config.subtitle + "</span>";
+  }
+
+  closeSidebar();
+
+  if (page === "explore") loadUsers();
+  if (page === "messages") loadChatContacts();
+  if (page === "requests") {
+    loadRequests();
+    loadSentRequests();
+  }
+}
+
+function toggleSidebar() {
+  document.getElementById("sidebar").classList.toggle("open");
+  document.getElementById("overlay").classList.toggle("open");
+}
+
+function closeSidebar() {
+  document.getElementById("sidebar").classList.remove("open");
+  document.getElementById("overlay").classList.remove("open");
+}
+
+function openAddSkillModal() {
+  document.getElementById("add-skill-modal").classList.add("open");
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove("open");
+}
+
+function onRequestTypeChange() {
+  const type = document.getElementById("send-request-type")?.value || "COIN_SESSION";
+  const wrap = document.getElementById("send-request-coins-wrap");
+  if (wrap) wrap.style.display = type === "COIN_SESSION" ? "" : "none";
+}
+
+/* ================= API ================= */
+
+function buildHeaders() {
+  const token = getToken();
+  return {
+    "Content-Type": "application/json",
+    Authorization: "Bearer " + token
+  };
+}
+
+async function parseJsonSafe(res) {
+  if (res.status === 204) return null;
+  const text = await res.text();
+  if (!text) return null;
+  try {
+    return JSON.parse(text);
+  } catch (err) {
+    return null;
+  }
+}
+
+async function apiGet(path) {
+  try {
+    const res = await fetch(API_BASE + path, { headers: buildHeaders() });
+    if (res.status === 401) {
+      handleUnauthorized();
+      return null;
+    }
+    if (!res.ok) {
+      console.warn("GET failed:", path, res.status);
+      return null;
+    }
+    return await parseJsonSafe(res);
+  } catch (err) {
+    console.error("GET error:", err);
+    return null;
+  }
+}
+
+async function apiSend(path, method, body) {
+  try {
+    const options = { method, headers: buildHeaders() };
+    if (body !== undefined) options.body = JSON.stringify(body);
+    const res = await fetch(API_BASE + path, options);
+    if (res.status === 401) {
+      handleUnauthorized();
+      return null;
+    }
+    const data = await parseJsonSafe(res);
+    if (!res.ok) {
+      alert((data && data.message) || "Request failed (" + res.status + ")");
+      return null;
+    }
+    if (res.status === 204) return {};
+    return data;
+  } catch (err) {
+    console.error("SEND error:", err);
+    alert("Network error. Please try again.");
+    return null;
+  }
+}
+
+async function apiDelete(path) {
+  try {
+    const res = await fetch(API_BASE + path, { method: "DELETE", headers: buildHeaders() });
+    if (res.status === 401) {
+      handleUnauthorized();
+      return false;
+    }
+    if (!res.ok) {
+      const data = await parseJsonSafe(res);
+      alert((data && data.message) || "Delete failed (" + res.status + ")");
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.error("DELETE error:", err);
+    return false;
+  }
+}
+
+/* ================= UI HELPERS ================= */
+
+function escapeHtml(str) {
+  return String(str == null ? "" : str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function setText(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = value;
+}
+
+function setInputValue(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.value = value == null ? "" : value;
+}
+
+function initials(name) {
+  return (name || "U")
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+}
+
+function formatTxnDate(iso) {
+  if (!iso) return "";
+  try {
+    return new Date(iso).toLocaleString(undefined, {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit"
+    });
+  } catch (e) {
+    return iso;
+  }
+}
+
+function isProfileComplete(profile) {
+  return !!(profile && profile.fullName && profile.bio && profile.location);
+}
+
+function updateNavBadge(id, count) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (count > 0) {
+    el.textContent = count;
+    el.style.display = "";
+  } else {
+    el.style.display = "none";
+  }
+}
+
+function updateWelcomeSub(stats) {
+  const el = document.getElementById("welcome-sub");
+  if (!el || !stats) return;
+  const pending = stats.activeRequests || 0;
+  const unread = stats.unreadMessages || 0;
+  if (pending === 0 && unread === 0) {
+    el.textContent = "Welcome! Add a skill or complete your profile to get started.";
+    return;
+  }
+  el.innerHTML =
+    "You have <strong style=\"color:var(--gold)\">" +
+    pending +
+    " pending request" +
+    (pending !== 1 ? "s" : "") +
+    "</strong> and <strong style=\"color:var(--teal)\">" +
+    unread +
+    " new message" +
+    (unread !== 1 ? "s" : "") +
+    "</strong>.";
+}
+
+function countAcceptedSessions() {
+  const all = [...cachedReceivedRequests, ...cachedSentRequests];
+  return all.filter((r) => r.status === "ACCEPTED").length;
+}
+
+/* ================= PROFILE ================= */
+
+function applyProfileToUI(profile) {
+  currentUserId = profile.id;
+  const name = profile.fullName || "User";
+  const avatar = initials(name);
+
+  setText("topbar-username", name);
+  setText("welcome-name", name);
+  setText("topbar-avatar", avatar);
+  setText("profile-name-display", name);
+  setText("profile-avatar-display", avatar);
+  const emailEl = document.getElementById("profile-email-display");
+  if (emailEl) {
+    emailEl.innerHTML = '<i class="fa-solid fa-envelope"></i> ' + escapeHtml(profile.email || "");
+  }
+  const locEl = document.getElementById("profile-location-display");
+  if (locEl) {
+    locEl.innerHTML =
+      '<i class="fa-solid fa-location-dot"></i> ' + escapeHtml(profile.location || "—");
+  }
+  setText("profile-coin-display", (profile.coins || 0) + " coins");
+  setText("pv-name", name);
+  setText("pv-email", profile.email || "—");
+  setText("pv-location", profile.location || "—");
+  setText("pv-bio", profile.bio || "—");
+  setInputValue("edit-name", profile.fullName);
+  setInputValue("edit-email", profile.email);
+  setInputValue("edit-location", profile.location);
+  setInputValue("edit-bio", profile.bio);
+}
+
+function toggleEditProfile() {
+  const view = document.getElementById("profile-view-card");
+  const edit = document.getElementById("profile-edit-card");
+  const showingEdit = edit && edit.style.display !== "none";
+  if (showingEdit) {
+    edit.style.display = "none";
+    if (view) view.style.display = "";
+  } else {
+    if (view) view.style.display = "none";
+    edit.style.display = "";
+  }
+}
+
+async function saveProfile() {
+  const body = {
+    fullName: document.getElementById("edit-name").value.trim(),
+    email: document.getElementById("edit-email").value.trim(),
+    location: document.getElementById("edit-location").value.trim(),
+    bio: document.getElementById("edit-bio").value.trim()
+  };
+  if (!body.fullName || !body.email) {
+    alert("Full name and email are required.");
+    return;
+  }
+  const updated = await apiSend("/profile", "PUT", body);
+  if (!updated) return;
+  applyProfileToUI(updated);
+  toggleEditProfile();
+  await refreshAllData();
+}
+
+async function loadProfileAndCheck() {
+  const profile = await apiGet("/profile");
+  if (!profile) return null;
+  applyProfileToUI(profile);
+  if (!isProfileComplete(profile)) {
+    navigate("profile", findNavItem("profile"));
+  }
+  return profile;
+}
+
+/* ================= DASHBOARD ================= */
+
+async function loadDashboardStats() {
+  const stats = await apiGet("/dashboard/stats");
+  if (!stats) return;
+
+  const coins = stats.coins || 0;
+  setText("stat-coins", coins);
+  setText("dash-balance", coins);
+  setText("sidebar-balance", coins);
+  setText("stat-skills-teach", stats.skillsTeach || 0);
+  setText("stat-skills-learn", stats.skillsLearn || 0);
+  setText("stat-active-requests", stats.activeRequests || 0);
+
+  const walletEl = document.getElementById("wallet-balance");
+  if (walletEl) walletEl.innerHTML = coins + " <span>COINS</span>";
+
+  updateNavBadge("nav-badge-requests", stats.activeRequests || 0);
+  updateNavBadge("nav-badge-messages", stats.unreadMessages || 0);
+  updateWelcomeSub(stats);
+
+  const sessions = countAcceptedSessions();
+  setText("dash-sessions", sessions);
+}
+
+function renderDashboardTopSkills(skills) {
+  const container = document.getElementById("dashboard-top-skills-list");
+  if (!container) return;
+  if (!skills.length) {
+    container.innerHTML = '<p style="color:var(--text-secondary);font-size:14px;">No skills added yet</p>';
+    return;
+  }
+  container.innerHTML = skills
+    .slice(0, 5)
+    .map((s) => {
+      const badge = s.type === "TEACH" ? "teach" : "learn";
+      const tagClass = s.type === "TEACH" ? "tag-teal" : "tag-indigo";
+      return (
+        '<div class="skill-item"><span class="skill-type-badge ' +
+        badge +
+        '">' +
+        (s.type === "TEACH" ? "Teach" : "Learn") +
+        '</span><span class="skill-name">' +
+        escapeHtml(s.name) +
+        '</span><span class="tag ' +
+        tagClass +
+        '">' +
+        escapeHtml(s.level) +
+        "</span></div>"
+      );
+    })
+    .join("");
+}
+
+function renderDashboardActivity(transactions) {
+  const container = document.getElementById("dashboard-activity-list");
+  if (!container) return;
+  const txns = Array.isArray(transactions) ? transactions : [];
+  if (!txns.length) {
+    container.innerHTML = '<p style="color:var(--text-secondary);font-size:14px;">No activity yet</p>';
+    return;
+  }
+  container.innerHTML = txns
+    .slice(0, 8)
+    .map((t) => {
+      const type = t.type || "EARN";
+      const isSpend = type === "SPEND";
+      const isBonus = type === "BONUS";
+      const dotStyle = isSpend
+        ? "background:var(--rose-dim);color:var(--rose)"
+        : isBonus
+          ? "background:var(--gold-dim);color:var(--gold)"
+          : "background:var(--teal-dim);color:var(--teal)";
+      const icon = isSpend
+        ? "fa-arrow-down"
+        : isBonus
+          ? "fa-gift"
+          : "fa-arrow-up";
+      const coinClass = isSpend ? "minus" : "plus";
+      const sign = isSpend ? "-" : "+";
+      return (
+        '<div class="activity-item"><div class="activity-dot" style="' +
+        dotStyle +
+        '"><i class="fa-solid ' +
+        icon +
+        '"></i></div><div class="activity-text">' +
+        escapeHtml(t.description || "Transaction") +
+        '</div><div class="activity-coin ' +
+        coinClass +
+        '">' +
+        sign +
+        (t.amount || 0) +
+        " 🪙</div></div>"
+      );
+    })
+    .join("");
+}
+
+async function loadProfileStatsFromWallet(wallet) {
+  const w = wallet || (await apiGet("/wallet/summary"));
+  if (!w) return;
+  const earned = w.totalEarned || 0;
+  const spent = w.totalSpent || 0;
+  const sessions = countAcceptedSessions();
+  setText("profile-stat-sessions", sessions);
+  setText("profile-stat-earned", earned + " 🪙");
+  setText("profile-stat-spent", spent + " 🪙");
+  setText("dash-earned", earned);
+}
+
+/* ================= WALLET ================= */
+
+function renderWalletTransactions(transactions) {
+  const container = document.getElementById("wallet-txn-list");
+  if (!container) return;
+  const txns = Array.isArray(transactions) ? transactions : [];
+  if (!txns.length) {
+    container.innerHTML = '<p style="color:var(--text-secondary);font-size:14px;">No transactions yet</p>';
+    return;
+  }
+  container.innerHTML = txns
+    .map((t) => {
+      const type = (t.type || "EARN").toLowerCase();
+      const isSpend = t.type === "SPEND";
+      const icon = isSpend ? "fa-arrow-down" : t.type === "BONUS" ? "fa-gift" : "fa-arrow-up";
+      const amountClass = isSpend ? "spend" : t.type === "BONUS" ? "bonus" : "earn";
+      const sign = isSpend ? "-" : "+";
+      return (
+        '<div class="txn-item"><div class="txn-icon ' +
+        amountClass +
+        '"><i class="fa-solid ' +
+        icon +
+        '"></i></div><div class="txn-info"><div class="txn-desc">' +
+        escapeHtml(t.description || "Transaction") +
+        '</div><div class="txn-date">' +
+        escapeHtml(formatTxnDate(t.createdAt)) +
+        '</div></div><div class="txn-amount ' +
+        amountClass +
+        '">' +
+        sign +
+        (t.amount || 0) +
+        " 🪙</div></div>"
+      );
+    })
+    .join("");
+}
+
+async function loadWallet() {
+  const summary = await apiGet("/wallet/summary");
+  if (!summary) return;
+
+  const balance = summary.balance || 0;
+  const earned = summary.totalEarned || 0;
+  const spent = summary.totalSpent || 0;
+
+  setText("wallet-total-earned", "+" + earned);
+  setText("wallet-total-spent", "-" + spent);
+
+  const walletEl = document.getElementById("wallet-balance");
+  if (walletEl) walletEl.innerHTML = balance + " <span>COINS</span>";
+
+  const sub = document.getElementById("wallet-balance-sub");
+  if (sub) sub.textContent = earned || spent ? "From your SkillMint wallet activity" : "";
+
+  renderWalletTransactions(summary.transactions);
+  renderDashboardActivity(summary.transactions);
+  await loadProfileStatsFromWallet(summary);
+  return summary;
+}
+
+/* ================= SKILLS ================= */
+
+function skillItemHtml(s) {
+  const badge = s.type === "TEACH" ? "teach" : "learn";
+  const tagClass = s.type === "TEACH" ? "tag-teal" : "tag-muted";
+  return (
+    '<div class="skill-item" data-skill-id="' +
+    s.id +
+    '"><span class="skill-type-badge ' +
+    badge +
+    '">' +
+    (s.type === "TEACH" ? "Teach" : "Learn") +
+    '</span><span class="skill-name">' +
+    escapeHtml(s.name) +
+    '</span><span class="tag ' +
+    tagClass +
+    '">' +
+    escapeHtml(s.level) +
+    '</span><button class="btn btn-sm btn-danger" onclick="removeSkill(' +
+    s.id +
+    ')" title="Remove">✕</button></div>'
+  );
+}
+
+function renderSkills(skills) {
+  cachedSkills = Array.isArray(skills) ? skills : [];
+  const teach = cachedSkills.filter((s) => s.type === "TEACH");
+  const learn = cachedSkills.filter((s) => s.type === "LEARN");
+
+  const teachList = document.getElementById("teach-skills-list");
+  const learnList = document.getElementById("learn-skills-list");
+
+  teachList.innerHTML = teach.length
+    ? teach.map(skillItemHtml).join("")
+    : '<p style="color:var(--text-secondary);font-size:14px;">No skills added yet</p>';
+
+  learnList.innerHTML = learn.length
+    ? learn.map(skillItemHtml).join("")
+    : '<p style="color:var(--text-secondary);font-size:14px;">No skills added yet</p>';
+
+  renderDashboardTopSkills(cachedSkills);
+}
+
+async function loadSkills() {
+  const skills = await apiGet("/skills");
+  renderSkills(skills);
+}
+
+async function addSkill() {
+  const name = document.getElementById("new-skill-name").value.trim();
+  const type = document.getElementById("new-skill-type").value;
+  const level = document.getElementById("new-skill-level").value;
+  if (!name) {
+    alert("Please enter a skill name.");
+    return;
+  }
+  const created = await apiSend("/skills", "POST", { name, type, level });
+  if (!created) return;
+  document.getElementById("new-skill-name").value = "";
+  closeModal("add-skill-modal");
+  await refreshAllData();
+}
+
+async function removeSkill(skillId) {
+  if (!confirm("Remove this skill?")) return;
+  const ok = await apiDelete("/skills/" + skillId);
+  if (!ok) return;
+  await refreshAllData();
+}
+
+/* ================= REQUESTS ================= */
+
+function statusBadgeClass(status) {
+  const s = (status || "").toLowerCase();
+  if (s === "accepted") return "accepted";
+  if (s === "rejected") return "rejected";
+  return "pending";
+}
+
+function requestPartner(r, mode) {
+  if (mode === "received") {
+    return { id: r.senderId, name: r.senderName };
+  }
+  return { id: r.receiverId, name: r.receiverName };
+}
+
+function requestItemHtml(r, mode) {
+  const partner = requestPartner(r, mode);
+  const name = partner.name;
+  const av = initials(name);
+  const isCoin = r.requestType === "COIN_SESSION";
+  const detail =
+    mode === "received"
+      ? escapeHtml(name) +
+        " wants to learn <strong>" +
+        escapeHtml(r.skillName) +
+        "</strong>" +
+        (isCoin ? " · " + (r.coinsPerSession || 0) + " 🪙/session" : " · Skill Swap")
+      : "You requested <strong>" +
+        escapeHtml(r.skillName) +
+        "</strong> from " +
+        escapeHtml(name) +
+        (isCoin ? " · " + (r.coinsPerSession || 0) + " 🪙/session" : " · Skill Swap");
+
+  let actions = "";
+  if (mode === "received" && r.status === "PENDING") {
+    actions =
+      '<div class="request-actions">' +
+      '<button class="btn btn-sm btn-success" onclick="acceptRequest(' +
+      r.id +
+      ')"><i class="fa-solid fa-check"></i> Accept</button> ' +
+      '<button class="btn btn-sm btn-danger" onclick="rejectRequest(' +
+      r.id +
+      ')"><i class="fa-solid fa-xmark"></i> Reject</button></div>';
+  } else if (r.status === "ACCEPTED" && r.sessionStatus === "ACTIVE") {
+    actions =
+      '<div class="request-actions">' +
+      '<button class="btn btn-sm btn-outline" onclick="openChatWithSession(' +
+      r.id +
+      ", " +
+      partner.id +
+      ', ' +
+      JSON.stringify(name) +
+      ')"><i class="fa-solid fa-message"></i> Message</button></div>';
+  }
+
+  return (
+    '<div class="request-item" data-request-id="' +
+    r.id +
+    '"><div class="user-card-avatar" style="background:var(--indigo);color:#fff;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;">' +
+    escapeHtml(av) +
+    '</div><div class="request-item-info"><div class="request-item-name">' +
+    escapeHtml(name) +
+    '</div><div class="request-item-detail">' +
+    detail +
+    '</div></div><span class="status-badge ' +
+    statusBadgeClass(r.status) +
+    '">' +
+    escapeHtml(r.status) +
+    "</span>" +
+    actions +
+    "</div>"
+  );
+}
+
+function filterRequestsByStatus(reqs) {
+  if (requestStatusFilter === "ALL") return reqs;
+  return reqs.filter((r) => r.status === requestStatusFilter);
+}
+
+function renderRequestList(containerId, reqs, mode) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  const filtered = filterRequestsByStatus(reqs);
+  if (!filtered.length) {
+    const label =
+      requestStatusFilter === "ALL"
+        ? "No requests yet"
+        : "No " + requestStatusFilter.toLowerCase() + " requests";
+    container.innerHTML = '<p style="color:var(--text-secondary);font-size:14px;">' + label + "</p>";
+    return;
+  }
+  container.innerHTML = filtered.map((r) => requestItemHtml(r, mode)).join("");
+}
+
+function updateRequestTabLabels() {
+  const rec = cachedReceivedRequests.length;
+  const sent = cachedSentRequests.length;
+  const recTab = document.getElementById("req-tab-received");
+  const sentTab = document.getElementById("req-tab-sent");
+  if (recTab) recTab.textContent = "Received (" + rec + ")";
+  if (sentTab) sentTab.textContent = "Sent (" + sent + ")";
+}
+
+function setRequestStatusFilter(status, el) {
+  requestStatusFilter = status;
+  document.querySelectorAll("#request-status-tabs .req-tab").forEach((t) => t.classList.remove("active"));
+  if (el) el.classList.add("active");
+  renderRequestList("req-received", cachedReceivedRequests, "received");
+  renderRequestList("req-sent", cachedSentRequests, "sent");
+}
+
+async function loadRequests() {
+  const data = await apiGet("/requests/received");
+  cachedReceivedRequests = Array.isArray(data) ? data : [];
+  renderRequestList("req-received", cachedReceivedRequests, "received");
+  updateRequestTabLabels();
+}
+
+async function loadSentRequests() {
+  const data = await apiGet("/requests/sent");
+  cachedSentRequests = Array.isArray(data) ? data : [];
+  renderRequestList("req-sent", cachedSentRequests, "sent");
+  updateRequestTabLabels();
+}
+
+function switchReqTab(tab, el) {
+  currentReqTab = tab;
+  document.querySelectorAll("#request-direction-tabs .req-tab").forEach((t) => t.classList.remove("active"));
+  if (el) el.classList.add("active");
+  document.getElementById("req-received").style.display = tab === "received" ? "" : "none";
+  document.getElementById("req-sent").style.display = tab === "sent" ? "" : "none";
+  if (tab === "sent") {
+    renderRequestList("req-sent", cachedSentRequests, "sent");
+  } else {
+    renderRequestList("req-received", cachedReceivedRequests, "received");
+  }
+}
+
+async function acceptRequest(requestId) {
+  const updated = await apiSend("/requests/" + requestId + "/status", "PATCH", { status: "ACCEPTED" });
+  if (!updated) return;
+  await refreshAllData();
+  navigate("messages", findNavItem("messages"));
+  await openChatWithSession(updated.id, updated.senderId, updated.senderName);
+}
+
+async function rejectRequest(requestId) {
+  const updated = await apiSend("/requests/" + requestId + "/status", "PATCH", { status: "REJECTED" });
+  if (!updated) return;
+  await refreshAllData();
+}
+
+/* ================= EXPLORE / USERS ================= */
+
+function renderUserCard(user) {
+  const av = initials(user.fullName);
+  const teachTags = (user.teachSkills || [])
+    .map(
+      (s) =>
+        '<span class="tag tag-teal">' + escapeHtml(s.name) + " · " + escapeHtml(s.level) + "</span>"
+    )
+    .join("");
+  const learnTags = (user.learnSkills || [])
+    .map(
+      (s) =>
+        '<span class="tag tag-indigo">' + escapeHtml(s.name) + " · " + escapeHtml(s.level) + "</span>"
+    )
+    .join("");
+  const hasTeach = user.teachSkills && user.teachSkills.length > 0;
+  const skillsHtml =
+    (teachTags ? "<div style=\"margin-bottom:6px;\"><span style=\"font-size:11px;color:var(--text-muted);\">Teaches:</span> " + teachTags + "</div>" : "") +
+    (learnTags ? "<div><span style=\"font-size:11px;color:var(--text-muted);\">Learning:</span> " + learnTags + "</div>" : "") +
+    (!teachTags && !learnTags ? '<span style="font-size:12px;color:var(--text-muted);">No skills listed</span>' : "");
+
+  return (
+    '<div class="user-card" data-user-id="' +
+    user.id +
+    '"><div class="user-card-header"><div class="user-card-avatar" style="background:var(--indigo);color:#fff;">' +
+    escapeHtml(av) +
+    '</div><div><div class="user-card-name">' +
+    escapeHtml(user.fullName) +
+    '</div><div class="user-card-location">' +
+    escapeHtml(user.location || "—") +
+    '</div></div></div><p style="font-size:13px;color:var(--text-secondary);line-height:1.5;margin-bottom:12px;min-height:40px;">' +
+    escapeHtml(user.bio || "—") +
+    '</p><div class="user-card-skills">' +
+    skillsHtml +
+    '</div><div class="user-card-footer"><span style="font-size:12px;color:var(--text-muted);">' +
+    (user.teachSkills ? user.teachSkills.length : 0) +
+    " teach · " +
+    (user.learnSkills ? user.learnSkills.length : 0) +
+    ' learn</span><button class="btn btn-sm btn-primary" ' +
+    (hasTeach ? 'onclick="openSendRequestModal(' + user.id + ')"' : "disabled") +
+    "><i class=\"fa-solid fa-paper-plane\"></i> Send Request</button></div></div>"
+  );
+}
+
+function renderUsers(users) {
+  const container = document.getElementById("user-cards-container");
+  if (!container) return;
+  if (!users.length) {
+    container.innerHTML =
+      '<p style="color:var(--text-secondary);font-size:14px;grid-column:1/-1;">No other users found. Register another account to test discovery.</p>';
+    return;
+  }
+  container.innerHTML = users.map(renderUserCard).join("");
+}
+
+function populateExploreSkillFilter() {
+  const select = document.getElementById("explore-filter");
+  if (!select) return;
+  const names = new Set();
+  cachedUsers.forEach((u) => {
+    (u.teachSkills || []).forEach((s) => names.add(s.name));
+    (u.learnSkills || []).forEach((s) => names.add(s.name));
+  });
+  select.innerHTML = '<option value="">All skills</option>';
+  Array.from(names)
+    .sort()
+    .forEach((n) => {
+      select.innerHTML += "<option value=\"" + escapeHtml(n) + "\">" + escapeHtml(n) + "</option>";
+    });
+}
+
+function filterUsers() {
+  const q = (document.getElementById("explore-search").value || "").trim().toLowerCase();
+  const skillFilter = document.getElementById("explore-filter").value;
+  let list = cachedUsers.slice();
+  if (q) {
+    list = list.filter((u) => {
+      const hay =
+        (u.fullName || "") +
+        " " +
+        (u.bio || "") +
+        " " +
+        (u.location || "") +
+        " " +
+        (u.teachSkills || []).map((s) => s.name).join(" ") +
+        " " +
+        (u.learnSkills || []).map((s) => s.name).join(" ");
+      return hay.toLowerCase().includes(q);
+    });
+  }
+  if (skillFilter) {
+    list = list.filter((u) => {
+      const all = [...(u.teachSkills || []), ...(u.learnSkills || [])];
+      return all.some((s) => s.name === skillFilter);
+    });
+  }
+  renderUsers(list);
+}
+
+async function loadUsers() {
+  const data = await apiGet("/users");
+  cachedUsers = Array.isArray(data) ? data : [];
+  populateExploreSkillFilter();
+  filterUsers();
+}
+
+function openSendRequestModal(userId) {
+  const user = cachedUsers.find((u) => u.id === userId);
+  if (!user) return;
+  pendingRequestTarget = user;
+  setText("send-request-receiver-name", user.fullName);
+  const typeEl = document.getElementById("send-request-type");
+  if (typeEl) typeEl.value = "COIN_SESSION";
+  const skillSelect = document.getElementById("send-request-skill");
+  skillSelect.innerHTML = "";
+  if (!user.teachSkills || !user.teachSkills.length) {
+    skillSelect.innerHTML = '<option value="">No teach skills available</option>';
+  } else {
+    user.teachSkills.forEach((s) => {
+      const opt = document.createElement("option");
+      opt.value = s.id;
+      opt.textContent = s.name + " (" + s.level + ")";
+      skillSelect.appendChild(opt);
+    });
+  }
+  document.getElementById("send-request-coins").value = "10";
+  onRequestTypeChange();
+  document.getElementById("send-request-modal").classList.add("open");
+}
+
+async function submitSendRequest() {
+  if (!pendingRequestTarget) return;
+  const skillId = Number(document.getElementById("send-request-skill").value);
+  const requestType = document.getElementById("send-request-type").value;
+  const coinsPerSession = Number(document.getElementById("send-request-coins").value);
+  if (!skillId) {
+    alert("Select a skill.");
+    return;
+  }
+  if (requestType === "COIN_SESSION") {
+    if (!coinsPerSession || coinsPerSession <= 0) {
+      alert("Enter coins per session (greater than 0).");
+      return;
+    }
+  }
+  const created = await apiSend("/requests", "POST", {
+    receiverId: pendingRequestTarget.id,
+    skillId,
+    requestType,
+    coinsPerSession: requestType === "COIN_SESSION" ? coinsPerSession : null
+  });
+  if (!created) return;
+  closeModal("send-request-modal");
+  pendingRequestTarget = null;
+  await refreshAllData();
+  alert("Request sent successfully.");
+}
+
+/* ================= MESSAGES ================= */
+
+async function loadChatContacts() {
+  const container = document.getElementById("chat-contacts-list");
+  if (!container) return;
+  const contacts = await apiGet("/messages/contacts");
+  if (!contacts || !contacts.length) {
+    container.innerHTML =
+      '<p style="color:var(--text-secondary);font-size:13px;padding:12px;">No conversations yet. Accept a request to start messaging.</p>';
+    return;
+  }
+  container.innerHTML = contacts
+    .map((c) => {
+      const av = initials(c.fullName);
+      const active = activeChatUserId === c.userId ? " active" : "";
+      return (
+        '<div class="chat-contact' +
+        active +
+        '" data-user-id="' +
+        c.userId +
+        '" onclick="openChatFromEl(this)"><div class="contact-avatar" style="background:var(--indigo);color:#fff;">' +
+        escapeHtml(av) +
+        '</div><div><div class="contact-name">' +
+        escapeHtml(c.fullName) +
+        "</div></div></div>"
+      );
+    })
+    .join("");
+}
+
+function renderChatContacts() {
+  loadChatContacts();
+}
+
+function renderMessages(msgs, partnerName) {
+  const box = document.getElementById("chat-messages");
+  if (!box) return;
+  if (!msgs || !msgs.length) {
+    box.innerHTML = '<p style="color:var(--text-secondary);font-size:14px;padding:16px;">No messages yet</p>';
+    return;
+  }
+  const partnerInitials = initials(partnerName);
+  box.innerHTML = msgs
+    .map((m) => {
+      const sent = currentUserId != null && m.senderId === currentUserId;
+      if (sent) {
+        return (
+          '<div class="msg sent"><div><div class="msg-bubble">' +
+          escapeHtml(m.content) +
+          '</div><div class="msg-time">' +
+          escapeHtml(formatTxnDate(m.timestamp)) +
+          "</div></div></div>"
+        );
+      }
+      return (
+        '<div class="msg"><div class="contact-avatar" style="background:var(--indigo);color:#fff;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;flex-shrink:0;">' +
+        escapeHtml(partnerInitials) +
+        '</div><div><div class="msg-bubble">' +
+        escapeHtml(m.content) +
+        '</div><div class="msg-time">' +
+        escapeHtml(formatTxnDate(m.timestamp)) +
+        "</div></div></div>"
+      );
+    })
+    .join("");
+}
+
+async function loadMessagesForUser(userId, partnerName) {
+  activeChatUserId = userId;
+  activeSessionId = findActiveSessionIdForUser(userId);
+  setText("chat-header-name", partnerName || "Conversation");
+  setText("chat-header-avatar", initials(partnerName));
+  updateSessionActionButtons();
+  setText("chat-header-status", activeSessionId ? "Active session" : "No active session");
+  const data = await apiGet("/messages/conversation/" + userId);
+  renderMessages(Array.isArray(data) ? data : [], partnerName);
+}
+
+function openChatFromEl(el) {
+  const userId = Number(el.dataset.userId);
+  const nameEl = el.querySelector(".contact-name");
+  const name = nameEl ? nameEl.textContent : "User";
+  openChat(userId, name, el);
+}
+
+async function openChat(userId, partnerName, contactEl) {
+  document.querySelectorAll(".chat-contact").forEach((c) => c.classList.remove("active"));
+  if (contactEl) contactEl.classList.add("active");
+  await loadMessagesForUser(userId, partnerName);
+}
+
+function openChatWithSession(sessionId, userId, partnerName) {
+  activeSessionId = sessionId;
+  navigate("messages", findNavItem("messages"));
+  return openChat(userId, partnerName);
+}
+
+function findActiveSessionIdForUser(userId) {
+  const all = [...cachedReceivedRequests, ...cachedSentRequests];
+  const match = all.find((r) => {
+    if (r.status !== "ACCEPTED") return false;
+    if (r.sessionStatus !== "ACTIVE") return false;
+    const partnerId = r.senderId === currentUserId ? r.receiverId : r.senderId;
+    return partnerId === userId;
+  });
+  return match ? match.id : null;
+}
+
+function updateSessionActionButtons() {
+  const btnComplete = document.getElementById("btn-session-complete");
+  const btnConfirm = document.getElementById("btn-session-confirm");
+  const btnTerminate = document.getElementById("btn-session-terminate");
+  if (!btnComplete || !btnConfirm || !btnTerminate) return;
+
+  const all = [...cachedReceivedRequests, ...cachedSentRequests];
+  const session = activeSessionId ? all.find((r) => r.id === activeSessionId) : null;
+
+  const show = !!(session && session.status === "ACCEPTED" && session.sessionStatus === "ACTIVE");
+  if (!show) {
+    btnComplete.style.display = "none";
+    btnConfirm.style.display = "none";
+    btnTerminate.style.display = "none";
+    return;
+  }
+
+  btnTerminate.style.display = "";
+
+  const iAmSender = session.senderId === currentUserId;
+  const meCompleted = iAmSender ? session.senderCompleted : session.receiverCompleted;
+  const otherCompleted = iAmSender ? session.receiverCompleted : session.senderCompleted;
+
+  if (!meCompleted) {
+    btnComplete.style.display = "";
+    btnConfirm.style.display = otherCompleted ? "" : "none";
+  } else {
+    btnComplete.style.display = "none";
+    btnConfirm.style.display = otherCompleted ? "" : "none";
+  }
+}
+
+async function sessionComplete() {
+  if (!activeSessionId) return;
+  await apiSend("/sessions/" + activeSessionId + "/complete", "POST", {});
+  await refreshAllData();
+  updateSessionActionButtons();
+}
+
+async function sessionConfirmCompletion() {
+  if (!activeSessionId) return;
+  await apiSend("/sessions/" + activeSessionId + "/confirm-completion", "POST", {});
+  await refreshAllData();
+  updateSessionActionButtons();
+}
+
+async function sessionTerminate() {
+  if (!activeSessionId) return;
+  await apiSend("/sessions/" + activeSessionId + "/terminate", "POST", {});
+  await refreshAllData();
+  updateSessionActionButtons();
+}
+
+async function sendMessage() {
+  if (!activeChatUserId) {
+    alert("No conversation selected.");
+    return;
+  }
+  const input = document.getElementById("chat-input");
+  const content = input.value.trim();
+  if (!content) return;
+  const sent = await apiSend("/messages", "POST", {
+    receiverId: activeChatUserId,
+    content
+  });
+  if (!sent) return;
+  input.value = "";
+  await loadMessagesForUser(activeChatUserId, document.getElementById("chat-header-name").textContent);
+  await loadChatContacts();
+  await loadDashboardStats();
+}
+
+/* ================= REFRESH ================= */
+
+async function refreshAllData() {
+  await Promise.all([
+    loadDashboardStats(),
+    loadSkills(),
+    loadRequests(),
+    loadSentRequests(),
+    loadWallet(),
+    loadUsers()
+  ]);
+  await loadChatContacts();
+}
+
+/* ================= MAIN ================= */
+
+document.addEventListener("DOMContentLoaded", async () => {
+  if (!getToken()) {
+    redirectToLogin();
+    return;
+  }
+
+  try {
+    const profile = await loadProfileAndCheck();
+    if (!profile) return;
+    await refreshAllData();
+  } catch (err) {
+    console.error(err);
+    alert("Error loading dashboard");
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+Project: SkillMint (Skill Exchange Platform)
+
+Entities:
+
+User:
+- id
+- username
+- email
+- password
+- fullName
+- coins
+- location
+- bio
+
+Skill:
+- id
+- name
+- level
+- type (TEACH / LEARN)
+- userId
+
+SkillRequest:
+- id
+- senderId
+- receiverId
+- skillId
+- status (PENDING / ACCEPTED / REJECTED)
+
+Message:
+- id
+- senderId
+- receiverId
+- content
+- timestamp
+
+Transaction:
+- id
+- userId
+- amount
+- type (EARN / SPEND / BONUS)
+
+Features:
+- Authentication (JWT)
+- Profile management
+- Skill management
+- Request system
+- Messaging system
+- Wallet / coins system
