@@ -36,3 +36,14 @@ Override with env vars: `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD
 ## Notes for frontend integration
 - Save JWT from `/api/auth/login` or `/api/auth/register`.
 - Send header `Authorization: Bearer <token>` for all protected endpoints.
+
+
+
+## Images
+![img1](Dashboard.jpeg)
+![img1](Profile.jpeg)
+![img1](Skills.jpeg)
+![img1](Message.jpeg)
+![img1](Wallet.jpeg)
+
+
